@@ -24,10 +24,7 @@ def send_record(record):
         idx += 1
         time.sleep(0.005)                # small gap between notifications
 
-def wait_for_ready(timeout):
-    """Wait until the gateway writes a byte on the RX characteristic, which it
-    does once it has subscribed. Returns False on timeout so the node still runs
-    with an older gateway that never sends the handshake."""
+def wait_for_ready(timeout):#wait to send id=0 
     start = time.monotonic()
     while ble.connected:
         if uart.in_waiting:
@@ -47,9 +44,7 @@ while True:
         time.sleep(0.1)
     ble.stop_advertising()
     print("Central connected")
-
-    # Do not send until the gateway has enabled notifications, otherwise the
-    # first record is transmitted before anyone is listening and is lost.
+    #dont send until the gateway enables notifs, else id=0 is lost
     if wait_for_ready(READY_TIMEOUT):
         print("Gateway ready")
     else:
