@@ -1,0 +1,11 @@
+===== SENT vs RECEIVED VERIFICATION =====
+rows compared        : 114
+unique sample ids    : 114 (min 0, max 113)
+ids missing in range : 0
+duplicate ids        : 0
+max abs difference   : 0
+mismatched values    : 0 (tolerance 0.001)
+worst channel        : S1_Temp (0)
+note                 : only rows that arrived are compared; ids absent
+                       from the log are reported above as missing.
+RESULT: PASS - values received match the values sent

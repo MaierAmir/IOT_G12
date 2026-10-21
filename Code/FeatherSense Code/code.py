@@ -6,9 +6,10 @@ from adafruit_ble.services.nordic import UARTService
 DEVICE_NAME   = "FeatherSense"
 DATASET       = "/replay.bin"
 N_FEATURES    = 16
-FEATURE_BYTES = N_FEATURES * 4          # 64
-CHUNK         = 19                       # record bytes per notification (+1 header = 20)
-SEND_INTERVAL = 30.0                      # sec/row
+FEATURE_BYTES = N_FEATURES * 4           # 64
+CHUNK         = 19                       # record bytes per notification (+1 = 20)
+SEND_INTERVAL = 30.0                     # sec/row (dataset reporting interval)
+READY_TIMEOUT = 5.0                      # max wait for the gateway's ready byte
 
 ble  = adafruit_ble.BLERadio()
 ble.name = DEVICE_NAME
@@ -23,6 +24,20 @@ def send_record(record):
         idx += 1
         time.sleep(0.005)                # small gap between notifications
 
+def wait_for_ready(timeout):
+    """Wait until the gateway writes a byte on the RX characteristic, which it
+    does once it has subscribed. Returns False on timeout so the node still runs
+    with an older gateway that never sends the handshake."""
+    start = time.monotonic()
+    while ble.connected:
+        if uart.in_waiting:
+            uart.read(uart.in_waiting)   # discard the ready byte
+            return True
+        if time.monotonic() - start > timeout:
+            return False
+        time.sleep(0.02)
+    return False
+
 sample_id = 0
 f = open(DATASET, "rb")
 
@@ -32,6 +47,13 @@ while True:
         time.sleep(0.1)
     ble.stop_advertising()
     print("Central connected")
+
+    # Do not send until the gateway has enabled notifications, otherwise the
+    # first record is transmitted before anyone is listening and is lost.
+    if wait_for_ready(READY_TIMEOUT):
+        print("Gateway ready")
+    else:
+        print("No ready signal - starting anyway")
 
     while ble.connected:
         feats = f.read(FEATURE_BYTES)
