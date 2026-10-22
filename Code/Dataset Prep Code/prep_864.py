@@ -13,8 +13,8 @@ def repo_root():
         d = parent
 
 
-ROOT   = repo_root()
-SRC    = os.path.join(ROOT, "Dataset", "Occupancy_Estimation.csv")
+ROOT = repo_root()
+SRC = os.path.join(ROOT, "Dataset", "Occupancy_Estimation.csv")
 OUTDIR = os.path.join(ROOT, "Dataset")
 os.makedirs(OUTDIR, exist_ok=True)
 

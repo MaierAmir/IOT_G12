@@ -1,15 +1,3 @@
-"""
-verify_link.py - compare the samples received at the gateway with the bytes the
-node actually sent.
-
-Reads:
-  Dataset/replay.bin   what the Feather replays (N rows x 16 float32)
-  received.csv         what the gateway logged (t, id, 16 features)
-
-Reports rows compared, value mismatches (max absolute difference) and sample ids
-that are absent from the log (gaps), which a value-only check cannot see.
-
-"""
 import csv
 import os
 import struct
@@ -23,8 +11,7 @@ REC = len(FEATURES) * 4
 TOL = 1e-3
 
 
-def repo_root():
-    """Walk up from this file until a directory containing 'Dataset' is found."""
+def repo_root(): #find repo root/ dataset dir
     d = os.path.dirname(os.path.abspath(__file__))
     while True:
         if os.path.isdir(os.path.join(d, "Dataset")):
