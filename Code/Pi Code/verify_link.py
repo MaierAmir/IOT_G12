@@ -1,3 +1,17 @@
+"""
+verify_link.py - compare the samples received at the gateway with the bytes the
+node actually sent.
+
+Reads:
+  Dataset/replay.bin   what the Feather replays (N rows x 16 float32)
+  received.csv         what the gateway logged (t, id, 16 features)
+
+Reports rows compared, value mismatches (max absolute difference) and sample ids
+that are absent from the log (gaps), which a value-only check cannot see.
+
+Usage:
+  python verify_link.py [received.csv] [replay.bin]
+"""
 import csv
 import os
 import struct
@@ -11,7 +25,8 @@ REC = len(FEATURES) * 4
 TOL = 1e-3
 
 
-def repo_root(): #find repo root/ dataset dir
+def repo_root():
+    """Walk up from this file until a directory containing 'Dataset' is found."""
     d = os.path.dirname(os.path.abspath(__file__))
     while True:
         if os.path.isdir(os.path.join(d, "Dataset")):
@@ -35,7 +50,7 @@ def load_sent(path):
 
 def main():
     root = repo_root()
-    recv_path = sys.argv[1] if len(sys.argv) > 1 else os.path.join(root, "SimRuns", "received.csv")
+    recv_path = sys.argv[1] if len(sys.argv) > 1 else os.path.join(root, "received.csv")
     bin_path = sys.argv[2] if len(sys.argv) > 2 else os.path.join(root, "Dataset", "replay.bin")
 
     if not os.path.exists(recv_path):
@@ -66,7 +81,8 @@ def main():
             vals = [float(x) for x in row[2:2 + len(FEATURES)]]
             ids.append(sid)
             n += 1
-            # The node wraps replay.bin but sample_id keeps counting, so index % the number of rows that were sent
+            # The node wraps replay.bin but sample_id keeps counting, so index
+            # modulo the number of rows that were sent.
             exp = sent[sid % len(sent)]
             for i, (a, b) in enumerate(zip(vals, exp)):
                 d = abs(a - b)
