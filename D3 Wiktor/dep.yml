@@ -1,0 +1,6 @@
+$schema: https://azuremlschemas.azureedge.net/latest/managedOnlineDeployment.schema.json
+name: ee5127-g12-occupancy-5
+endpoint_name: ee5127-g12-wb-ep
+model: azureml:ee5127-g12-occupancy:5
+instance_type: Standard_DS2_v2
+instance_count: 1
